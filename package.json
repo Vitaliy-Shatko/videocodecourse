@@ -1,0 +1,16 @@
+{
+  "name": "chess-vanilla",
+  "version": "1.0.0",
+  "description": "Шахматы на HTML, CSS и JavaScript без зависимостей: движок, ИИ в Web Worker, доступный интерфейс.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node scripts/serve.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "perft": "node scripts/perft.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}

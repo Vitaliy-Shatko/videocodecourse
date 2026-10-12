@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark light">
+  <meta name="description" content="Шахматы в браузере: полный свод правил, игра с компьютером, FEN/PGN, управление с клавиатуры.">
+  <title>Шахматы</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='52' font-size='52'%3E%E2%99%9E%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#board">К доске</a>
+
+  <header class="app-header">
+    <h1 class="app-title"><span aria-hidden="true">♞</span> Шахматы</h1>
+    <div class="header-actions">
+      <button type="button" id="theme-toggle" class="icon-button" aria-label="Переключить тему" title="Переключить тему">◐</button>
+      <a class="icon-button" href="https://github.com/Vitaliy-Shatko/videocodecourse" target="_blank" rel="noopener" aria-label="Исходный код на GitHub" title="Исходный код">&lt;/&gt;</a>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="board-column" aria-label="Игровая доска">
+      <div class="player-bar player-bar--top" id="player-top">
+        <span class="player-name" id="player-top-name">Чёрные</span>
+        <span class="captured" id="captured-top" aria-label="Взятые фигуры"></span>
+      </div>
+
+      <div class="board-wrap" id="board-wrap">
+        <div class="board" id="board" role="grid" aria-label="Шахматная доска" aria-rowcount="8" aria-colcount="8" tabindex="-1"></div>
+        <div class="eval-bar" id="eval-bar" aria-hidden="true"><div class="eval-bar__fill" id="eval-bar-fill"></div></div>
+      </div>
+
+      <div class="player-bar player-bar--bottom" id="player-bottom">
+        <span class="player-name" id="player-bottom-name">Белые</span>
+        <span class="captured" id="captured-bottom" aria-label="Взятые фигуры"></span>
+      </div>
+
+      <p class="status" id="status" role="status" aria-live="polite">Ход белых</p>
+      <p class="visually-hidden" id="announcer" aria-live="polite" aria-atomic="true"></p>
+    </section>
+
+    <aside class="panel" aria-label="Управление игрой">
+      <div class="panel-section">
+        <div class="field-row">
+          <label class="field">
+            <span class="field-label">Режим</span>
+            <select id="mode">
+              <option value="hc">Я белыми против компьютера</option>
+              <option value="ch">Я чёрными против компьютера</option>
+              <option value="hh">Два игрока за одной доской</option>
+              <option value="cc">Компьютер против компьютера</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="field-label">Уровень</span>
+            <select id="level"></select>
+          </label>
+        </div>
+        <div class="button-row">
+          <button type="button" id="new-game" class="button button--primary">Новая игра</button>
+          <button type="button" id="undo" class="button" title="Отменить ход (Ctrl+Z)">Отменить</button>
+          <button type="button" id="flip" class="button" title="Перевернуть доску (F)">Перевернуть</button>
+          <button type="button" id="hint" class="button" title="Подсказка (H)">Подсказка</button>
+        </div>
+        <label class="checkbox">
+          <input type="checkbox" id="show-legal" checked>
+          <span>Подсвечивать возможные ходы</span>
+        </label>
+        <p class="engine-info" id="engine-info" aria-live="off"></p>
+      </div>
+
+      <div class="panel-section panel-section--moves">
+        <div class="moves-header">
+          <h2 class="panel-title">Ходы</h2>
+          <div class="nav-buttons" role="group" aria-label="Навигация по партии">
+            <button type="button" class="icon-button" id="nav-first" aria-label="В начало" title="В начало (Home)">⏮</button>
+            <button type="button" class="icon-button" id="nav-prev" aria-label="Предыдущий ход" title="Предыдущий ход (←)">◀</button>
+            <button type="button" class="icon-button" id="nav-next" aria-label="Следующий ход" title="Следующий ход (→)">▶</button>
+            <button type="button" class="icon-button" id="nav-last" aria-label="К последнему ходу" title="К последнему ходу (End)">⏭</button>
+          </div>
+        </div>
+        <ol class="moves" id="moves" aria-label="Список ходов"></ol>
+      </div>
+
+      <div class="panel-section">
+        <h2 class="panel-title">Позиция</h2>
+        <label class="field">
+          <span class="field-label">FEN</span>
+          <div class="input-group">
+            <input type="text" id="fen" spellcheck="false" autocomplete="off" aria-label="FEN текущей позиции">
+            <button type="button" id="copy-fen" class="button" title="Копировать FEN">Копировать</button>
+            <button type="button" id="load-fen" class="button" title="Начать с этой позиции">Загрузить</button>
+          </div>
+        </label>
+        <label class="field">
+          <span class="field-label">PGN</span>
+          <textarea id="pgn" rows="4" spellcheck="false" aria-label="PGN партии"></textarea>
+        </label>
+        <div class="button-row">
+          <button type="button" id="copy-pgn" class="button">Копировать PGN</button>
+          <button type="button" id="load-pgn" class="button">Загрузить PGN</button>
+        </div>
+        <p class="hint-text" id="position-message" aria-live="polite"></p>
+      </div>
+
+      <details class="panel-section help">
+        <summary>Управление</summary>
+        <ul>
+          <li>Клик или перетаскивание фигуры мышью / пальцем.</li>
+          <li>Клавиатура: <kbd>Tab</kbd> на доску, стрелки — выбор поля, <kbd>Enter</kbd>/<kbd>Пробел</kbd> — выбрать/сходить, <kbd>Esc</kbd> — отмена.</li>
+          <li><kbd>←</kbd>/<kbd>→</kbd> вне доски — просмотр партии, <kbd>Ctrl</kbd>+<kbd>Z</kbd> — отменить ход, <kbd>F</kbd> — перевернуть, <kbd>H</kbd> — подсказка.</li>
+        </ul>
+      </details>
+    </aside>
+  </main>
+
+  <div class="modal" id="promotion-modal" hidden>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="promotion-title">
+      <h2 class="modal__title" id="promotion-title">Превращение пешки</h2>
+      <div class="promotion-choices" id="promotion-choices"></div>
+      <button type="button" class="button" id="promotion-cancel">Отмена</button>
+    </div>
+  </div>
+
+  <script type="module" src="js/ui/app.js"></script>
+</body>
+</html>
